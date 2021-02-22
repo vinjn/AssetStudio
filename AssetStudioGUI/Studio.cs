@@ -425,7 +425,7 @@ namespace AssetStudioGUI
                                 if (csvFile.BaseStream != null)
                                 {
                                     // TODO:
-                                    csvFile.Write(String.Format("\"{0}\",{1},0,2021/02/20 20:19:52,32,0,0\n", Path.Combine(exportPath, asset.Text), asset.FullSize, asset.FullSize));
+                                    csvFile.Write(String.Format("\"{0}\",{1},0,2021/02/20 20:19:52,32,0,0\n", Path.Combine("Z:\\", asset.TypeString, asset.Text), asset.FullSize, asset.FullSize));
                                 }
                                 exportedCount++;
                                 break;
