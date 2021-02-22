@@ -17,7 +17,8 @@ namespace AssetStudioGUI
     {
         Convert,
         Raw,
-        Dump
+        Dump,
+        Csv,
     }
 
     internal static class Studio
@@ -363,6 +364,10 @@ namespace AssetStudioGUI
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
+                string csvFileName = Path.Combine(savePath, "pkg.csv");
+                StreamWriter csvFile = new StreamWriter(csvFileName);
+                csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
+
                 int toExportCount = toExportAssets.Count;
                 int exportedCount = 0;
                 int i = 0;
@@ -416,6 +421,14 @@ namespace AssetStudioGUI
                                     exportedCount++;
                                 }
                                 break;
+                            case ExportType.Csv:
+                                if (csvFile.BaseStream != null)
+                                {
+                                    // TODO:
+                                    csvFile.Write(String.Format("\"{0}\",{1},0,2021/02/20 20:19:52,32,0,0\n", Path.Combine(exportPath, asset.Text), asset.FullSize, asset.FullSize));
+                                }
+                                exportedCount++;
+                                break;
                         }
                     }
                     catch (Exception ex)
@@ -438,6 +451,11 @@ namespace AssetStudioGUI
                 if (Properties.Settings.Default.openAfterExport && exportedCount > 0)
                 {
                     Process.Start(savePath);
+                }
+
+                if (csvFile.BaseStream != null)
+                {
+                    csvFile.Close();
                 }
             });
         }

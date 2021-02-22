@@ -1967,6 +1967,11 @@ namespace AssetStudioGUI
             }
         }
 
+        private void cSVToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportAssets(1, ExportType.Csv);
+        }
+
         private void glControl1_MouseWheel(object sender, MouseEventArgs e)
         {
             if (glControl1.Visible)
