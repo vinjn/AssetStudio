@@ -297,9 +297,9 @@ namespace AssetStudioGUI
             return false;
         }
 
-        public static bool ExportRawFile(AssetItem item, string exportPath)
+        public static bool ExportRawFile(AssetItem item, string exportPath, out string exportFullPath)
         {
-            if (!TryExportFile(exportPath, item, ".dat", out var exportFullPath))
+            if (!TryExportFile(exportPath, item, ".dat", out exportFullPath))
                 return false;
             File.WriteAllBytes(exportFullPath, item.Asset.GetRawData());
             return true;
@@ -393,10 +393,11 @@ namespace AssetStudioGUI
 
         public static bool ExportConvertFile(AssetItem item, string exportPath)
         {
+            string exportFullPath;
             switch (item.Type)
             {
                 case ClassIDType.Texture2D:
-                    return ExportTexture2D(item, exportPath, out string exportFullPath);
+                    return ExportTexture2D(item, exportPath, out exportFullPath);
                 case ClassIDType.AudioClip:
                     return ExportAudioClip(item, exportPath);
                 case ClassIDType.Shader:
@@ -420,7 +421,7 @@ namespace AssetStudioGUI
                 case ClassIDType.AnimationClip:
                     return false;
                 default:
-                    return ExportRawFile(item, exportPath);
+                    return ExportRawFile(item, exportPath, out exportFullPath);
             }
         }
 
@@ -429,31 +430,45 @@ namespace AssetStudioGUI
             if (item.FullSize < 100000)
                 // skip small 
                 return false;
-
+            bool result = false;
             string filename;
             switch (item.Type)
             {
+                //csvFile.Write("Name,Container,Type,Size,FileName\n");
                 case ClassIDType.Texture2D:
                     {
-                        //csvFile.Write("Name,Container,Type,Size,FileName\n");
-                        var result = ExportTexture2D(item, exportPath, out filename);
+                        result = ExportTexture2D(item, exportPath, out filename);
                         filename = filename.Replace(exportPath, "Texture2D/");
-                        csvFile.Write(string.Format("{0},{1},{2},{3},{4}\n", 
-                            item.Text, item.Container, item.TypeString, item.FullSize, filename));
-
-                        return result;
+                        break;
                     }
 
-                //case ClassIDType.Shader:
-                //    return ExportRawFile(item, exportPath);
-                //case ClassIDType.Font:
-                //    return ExportRawFile(item, exportPath);
-                //case ClassIDType.Mesh:
-                //    return ExportMesh(item, exportPath);
+                case ClassIDType.Shader:
+                    {
+                        result = ExportRawFile(item, exportPath, out filename);
+                        filename = filename.Replace(exportPath, "Shader/");
+                        break;
+                    }
+                case ClassIDType.Font:
+                    {
+                        result = ExportRawFile(item, exportPath, out filename);
+                        filename = filename.Replace(exportPath, "Font/");
+                        break;
+                    }
+                case ClassIDType.Mesh:
+                    {
+                        //PreviewAsset()
+                        result = ExportRawFile(item, exportPath, out filename);
+                        filename = filename.Replace(exportPath, "Mesh/");
+                        break;
+                    }
 
                 default:
                     return false;
             }
+            csvFile.Write(string.Format("{0},{1},{2},{3},{4}\n",
+                item.Text, item.Container, item.TypeString, item.FullSize, filename));
+
+            return result;
         }
 
         public static string FixFileName(string str)

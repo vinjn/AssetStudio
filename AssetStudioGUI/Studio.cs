@@ -408,7 +408,7 @@ namespace AssetStudioGUI
                         switch (exportType)
                         {
                             case ExportType.Raw:
-                                if (ExportRawFile(asset, exportPath))
+                                if (ExportRawFile(asset, exportPath, out var filename))
                                 {
                                     exportedCount++;
                                 }

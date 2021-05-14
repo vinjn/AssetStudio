@@ -697,7 +697,7 @@ namespace AssetStudioGUI
             }
         }
 
-        private void PreviewAsset(AssetItem assetItem)
+        public void PreviewAsset(AssetItem assetItem)
         {
             if (assetItem == null)
                 return;
@@ -1020,7 +1020,9 @@ namespace AssetStudioGUI
         {
             if (m_Mesh.m_VertexCount > 0)
             {
-                viewMatrixData = Matrix4.CreateRotationY(-(float)Math.PI / 4) * Matrix4.CreateRotationX(-(float)Math.PI / 6);
+                //viewMatrixData = Matrix4.CreateRotationY(-(float)Math.PI / 4) * Matrix4.CreateRotationX(-(float)Math.PI / 6);
+                viewMatrixData = Matrix4.Identity;
+
                 #region Vertices
                 if (m_Mesh.m_Vertices == null || m_Mesh.m_Vertices.Length == 0)
                 {
@@ -1062,7 +1064,9 @@ namespace AssetStudioGUI
                     offset[i] = (max[i] + min[i]) / 2;
                 }
                 float d = Math.Max(1e-5f, dist.Length);
-                modelMatrixData = Matrix4.CreateTranslation(-offset) * Matrix4.CreateScale(2f / d);
+                modelMatrixData = Matrix4.CreateTranslation(-offset) * 
+                    Matrix4.CreateRotationY((float)Math.PI * 0.6f) * Matrix4.CreateRotationX((float)Math.PI * 0.6f) * Matrix4.CreateRotationZ((float)Math.PI / 2) 
+                    * Matrix4.CreateScale(2f / d);
                 #endregion
                 #region Indicies
                 indiceData = new int[m_Mesh.m_Indices.Count];
