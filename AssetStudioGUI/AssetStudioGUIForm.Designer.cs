@@ -119,6 +119,7 @@
             this.exportAnimatorwithselectedAnimationClipMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToSceneHierarchyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showOriginalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateVizToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -316,7 +317,8 @@
             this.toolStripSeparator4,
             this.toolStripMenuItem2,
             this.toolStripMenuItem3,
-            this.cSVToolStripMenuItem});
+            this.cSVToolStripMenuItem,
+            this.generateVizToolStripMenuItem});
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
             this.exportToolStripMenuItem.Text = "Export";
@@ -999,6 +1001,13 @@
             this.showOriginalFileToolStripMenuItem.Visible = false;
             this.showOriginalFileToolStripMenuItem.Click += new System.EventHandler(this.showOriginalFileToolStripMenuItem_Click);
             // 
+            // generateVizToolStripMenuItem
+            // 
+            this.generateVizToolStripMenuItem.Name = "generateVizToolStripMenuItem";
+            this.generateVizToolStripMenuItem.Size = new System.Drawing.Size(266, 22);
+            this.generateVizToolStripMenuItem.Text = "Generate Viz";
+            this.generateVizToolStripMenuItem.Click += new System.EventHandler(this.generateVizToolStripMenuItem_Click);
+            // 
             // AssetStudioGUIForm
             // 
             this.AllowDrop = true;
@@ -1140,6 +1149,7 @@
         private System.Windows.Forms.TabPage tabPage5;
         private System.Windows.Forms.TextBox dumpTextBox;
         private System.Windows.Forms.ToolStripMenuItem cSVToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem generateVizToolStripMenuItem;
     }
 }
 

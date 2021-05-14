@@ -19,6 +19,7 @@ namespace AssetStudioGUI
         Raw,
         Dump,
         Csv,
+        Viz,
     }
 
     internal static class Studio
@@ -366,8 +367,11 @@ namespace AssetStudioGUI
 
                 string csvFileName = Path.Combine(savePath, "pkg.csv");
                 StreamWriter csvFile = new StreamWriter(csvFileName);
-                csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
 
+                if (exportType == ExportType.Csv)
+                    csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
+                else if(exportType == ExportType.Viz)
+                    csvFile.Write("Name,Container,Type,Size,FileName\n");
                 int toExportCount = toExportAssets.Count;
                 int exportedCount = 0;
                 int i = 0;
@@ -428,6 +432,12 @@ namespace AssetStudioGUI
                                     csvFile.Write(String.Format("\"{0}\",{1},0,2021/02/20 20:19:52,32,0,0\n", Path.Combine("Z:\\", asset.TypeString, asset.Text), asset.FullSize, asset.FullSize));
                                 }
                                 exportedCount++;
+                                break;
+                            case ExportType.Viz:
+                                if (ExportVizFile(asset, exportPath, csvFile))
+                                {
+                                    exportedCount++;
+                                }
                                 break;
                         }
                     }

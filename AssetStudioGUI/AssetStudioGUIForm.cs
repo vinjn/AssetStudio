@@ -84,7 +84,7 @@ namespace AssetStudioGUI
         [DllImport("gdi32.dll")]
         private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
 
-        public AssetStudioGUIForm()
+        public AssetStudioGUIForm(string[] paths)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             InitializeComponent();
@@ -99,6 +99,22 @@ namespace AssetStudioGUI
             Logger.Default = new GUILogger(StatusStripUpdate);
             Progress.Default = new GUIProgress(SetProgressBarValue);
             Studio.StatusStripUpdate = StatusStripUpdate;
+
+            if (paths.Length > 0)
+            {
+                ResetForm();
+
+                if (paths.Length == 1 && Directory.Exists(paths[0]))
+                {
+                    assetsManager.LoadFolder(paths[0]);
+                }
+                else
+                {
+                    assetsManager.LoadFiles(paths);
+                }
+
+                BuildAssetStructures();
+            }
         }
 
         private void AssetStudioGUIForm_DragEnter(object sender, DragEventArgs e)
@@ -1925,6 +1941,19 @@ namespace AssetStudioGUI
             glControlLoaded = true;
         }
 
+        Bitmap GrabScreenshot()
+        {
+            Bitmap bmp = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+            System.Drawing.Imaging.BitmapData data =
+            bmp.LockBits(this.ClientRectangle, System.Drawing.Imaging.ImageLockMode.WriteOnly,
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            GL.ReadPixels(0, 0, this.ClientSize.Width, this.ClientSize.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, PixelType.UnsignedByte,
+                data.Scan0);
+            bmp.UnlockBits(data);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            return bmp;
+        }
+
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
             glControl1.MakeCurrent();
@@ -1970,6 +1999,24 @@ namespace AssetStudioGUI
         private void cSVToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ExportAssets(1, ExportType.Csv);
+        }
+
+        private static int CompareAssetByFileSize(AssetItem x, AssetItem y)
+        {
+            return string.Compare(x.Text, y.Text);
+        }
+
+        private void generateVizToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var saveFolderDialog = new OpenFolderDialog();
+            if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                timer.Stop();
+
+                List<AssetItem> toExportAssets = exportableAssets;
+                toExportAssets.Sort(CompareAssetByFileSize);
+                Studio.ExportAssets(saveFolderDialog.Folder, toExportAssets, ExportType.Viz);
+            }
         }
 
         private void glControl1_MouseWheel(object sender, MouseEventArgs e)

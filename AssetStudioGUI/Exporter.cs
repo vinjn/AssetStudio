@@ -11,14 +11,17 @@ namespace AssetStudioGUI
 {
     internal static class Exporter
     {
-        public static bool ExportTexture2D(AssetItem item, string exportPath)
+        public static bool ExportTexture2D(AssetItem item, string exportPath, out string exportFullPath)
         {
             var m_Texture2D = (Texture2D)item.Asset;
             if (Properties.Settings.Default.convertTexture)
             {
                 var bitmap = m_Texture2D.ConvertToBitmap(true);
                 if (bitmap == null)
+                {
+                    exportFullPath = "";
                     return false;
+                }
                 ImageFormat format = null;
                 var ext = Properties.Settings.Default.convertType;
                 bool tga = false;
@@ -37,8 +40,10 @@ namespace AssetStudioGUI
                         tga = true;
                         break;
                 }
-                if (!TryExportFile(exportPath, item, "." + ext.ToLower(), out var exportFullPath))
+                if (!TryExportFile(exportPath, item, "." + ext.ToLower(), out exportFullPath))
+                {
                     return false;
+                }
                 if (tga)
                 {
                     var file = new TGA(bitmap);
@@ -49,13 +54,15 @@ namespace AssetStudioGUI
                     bitmap.Save(exportFullPath, format);
                 }
                 bitmap.Dispose();
+
                 return true;
             }
             else
             {
-                if (!TryExportFile(exportPath, item, ".tex", out var exportFullPath))
+                if (!TryExportFile(exportPath, item, ".tex", out exportFullPath))
                     return false;
                 File.WriteAllBytes(exportFullPath, m_Texture2D.image_data.GetData());
+
                 return true;
             }
         }
@@ -389,7 +396,7 @@ namespace AssetStudioGUI
             switch (item.Type)
             {
                 case ClassIDType.Texture2D:
-                    return ExportTexture2D(item, exportPath);
+                    return ExportTexture2D(item, exportPath, out string exportFullPath);
                 case ClassIDType.AudioClip:
                     return ExportAudioClip(item, exportPath);
                 case ClassIDType.Shader:
@@ -414,6 +421,38 @@ namespace AssetStudioGUI
                     return false;
                 default:
                     return ExportRawFile(item, exportPath);
+            }
+        }
+
+        public static bool ExportVizFile(AssetItem item, string exportPath, StreamWriter csvFile)
+        {
+            if (item.FullSize < 100000)
+                // skip small 
+                return false;
+
+            string filename;
+            switch (item.Type)
+            {
+                case ClassIDType.Texture2D:
+                    {
+                        //csvFile.Write("Name,Container,Type,Size,FileName\n");
+                        var result = ExportTexture2D(item, exportPath, out filename);
+                        filename = filename.Replace(exportPath, "Texture2D/");
+                        csvFile.Write(string.Format("{0},{1},{2},{3},{4}\n", 
+                            item.Text, item.Container, item.TypeString, item.FullSize, filename));
+
+                        return result;
+                    }
+
+                //case ClassIDType.Shader:
+                //    return ExportRawFile(item, exportPath);
+                //case ClassIDType.Font:
+                //    return ExportRawFile(item, exportPath);
+                //case ClassIDType.Mesh:
+                //    return ExportMesh(item, exportPath);
+
+                default:
+                    return false;
             }
         }
 
