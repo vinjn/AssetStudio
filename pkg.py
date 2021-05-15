@@ -22,7 +22,7 @@ def pretty_number(num):
 def process_pkg_csv(filename):
     assets = {}
     dir_name = Path(filename).parent
-    print(filename, dir_name)
+    # print(filename, dir_name)
 
     markdown = open(dir_name / 'pkg.html', 'w')
     markdown.write(markdeep_head)
@@ -46,7 +46,7 @@ def process_pkg_csv(filename):
             asset_item = assets[file_size]
             asset_item['items'].append(row)
             asset_item['wasted'] = int(row['Size']) * (len(asset_item['items']) - 1) 
-            print(row['Name'], file_size)
+            # print(row['Name'], file_size)
 
     total_wasted = 0
     for k, v in assets.items():
@@ -74,7 +74,9 @@ def process_pkg_csv(filename):
                 '**%s**' % pretty_number(v['wasted']),
                 asset_filename,
                 ',<br>'.join(containers),
-            ))            
+            ))
+
+    print('\nreport -> %s\n' % (dir_name / 'pkg.html'))
 
 if __name__ == '__main__':
     pkg_csv = 'd:/svn_pool/pkg-doctor/hff_1a52b8498d42e.1620807276/viz/pkg.csv'

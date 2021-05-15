@@ -128,26 +128,32 @@ namespace AssetStudioGUI
                         var path_apk = path_0.Replace(".apk", "-apk");
                         if (Directory.Exists(path_apk))
                             Directory.Delete(path_apk, true);
-                        System.IO.Compression.ZipFile.ExtractToDirectory(path_0, path_apk);
-                        assetsManager.LoadFolder(path_apk);
 
+                        Console.WriteLine("Unzip {0}", path_0);
+                        System.IO.Compression.ZipFile.ExtractToDirectory(path_0, path_apk);
+                        path_0 = path_apk;
+                    }
+                    if (Directory.Exists(path_0))
+                    {
+                        Console.WriteLine("LoadFolder {0}", path_0);
+                        assetsManager.LoadFolder(path_0);
+
+                        Console.WriteLine("BuildAssetData");
                         BuildAssetData();
 
                         var path_pkg = path_0.Replace(".apk", "-pkg");
+                        Console.WriteLine("ExportAssets {0}", path_pkg);
                         if (!Directory.Exists(path_pkg))
                             Directory.CreateDirectory(path_pkg);
                         List<AssetItem> toExportAssets = exportableAssets;
                         toExportAssets.Sort(CompareAssetByFileSize);
                         Studio.ExportAssets2(path_pkg, toExportAssets, ExportType.Viz);
 
-                        run_python("d:/svn_pool/AssetStudio/pkg.py", path_pkg + "/pkg.csv");
+                        Console.WriteLine("pkg.py {0}", path_pkg + "/pkg.csv");
+                        run_python("pkg.py", path_pkg + "/pkg.csv");
 
                         // quit this app
                         Load += (s, e) => Close();
-                    }
-                    else if (Directory.Exists(path_0))
-                    {
-                        assetsManager.LoadFolder(path_0);
                     }
                 } 
                 else
