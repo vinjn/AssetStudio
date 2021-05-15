@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetStudio", "AssetStudio\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetStudioUtility", "AssetStudioUtility\AssetStudioUtility.csproj", "{80AEC261-21EE-4E4F-A93B-7A744DC84888}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetStudioGUI", "AssetStudioGUI\AssetStudioGUI.csproj", "{52B196FB-4C8A-499B-B877-1A0EB4F33EC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pkg-doctor", "AssetStudioGUI\pkg-doctor.csproj", "{52B196FB-4C8A-499B-B877-1A0EB4F33EC0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AssetStudioFBXNative", "AssetStudioFBXNative\AssetStudioFBXNative.vcxproj", "{11EA25A3-ED68-40EE-A9D0-7FDE3B583027}"
 EndProject
