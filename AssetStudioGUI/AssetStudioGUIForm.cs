@@ -83,6 +83,22 @@ namespace AssetStudioGUI
 
         [DllImport("gdi32.dll")]
         private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
+        private void run_python(string cmd, string args)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = "python.exe";
+            start.Arguments = string.Format("{0} {1}", cmd, args);
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    Console.Write(result);
+                }
+            }
+        }
 
         public AssetStudioGUIForm(string[] paths)
         {
@@ -104,10 +120,36 @@ namespace AssetStudioGUI
             {
                 ResetForm();
 
-                if (paths.Length == 1 && Directory.Exists(paths[0]))
+                if (paths.Length == 1)
                 {
-                    assetsManager.LoadFolder(paths[0]);
-                }
+                    var path_0 = paths[0];
+                    if (path_0.EndsWith(".apk", true, null) && File.Exists(path_0))
+                    {
+                        var path_apk = path_0.Replace(".apk", "-apk");
+                        if (Directory.Exists(path_apk))
+                            Directory.Delete(path_apk, true);
+                        System.IO.Compression.ZipFile.ExtractToDirectory(path_0, path_apk);
+                        assetsManager.LoadFolder(path_apk);
+
+                        BuildAssetData();
+
+                        var path_pkg = path_0.Replace(".apk", "-pkg");
+                        if (!Directory.Exists(path_pkg))
+                            Directory.CreateDirectory(path_pkg);
+                        List<AssetItem> toExportAssets = exportableAssets;
+                        toExportAssets.Sort(CompareAssetByFileSize);
+                        Studio.ExportAssets2(path_pkg, toExportAssets, ExportType.Viz);
+
+                        run_python("d:/svn_pool/AssetStudio/pkg.py", path_pkg + "/pkg.csv");
+
+                        // quit this app
+                        Load += (s, e) => Close();
+                    }
+                    else if (Directory.Exists(path_0))
+                    {
+                        assetsManager.LoadFolder(path_0);
+                    }
+                } 
                 else
                 {
                     assetsManager.LoadFiles(paths);

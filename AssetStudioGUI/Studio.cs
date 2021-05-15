@@ -470,6 +470,114 @@ namespace AssetStudioGUI
             });
         }
 
+        public static void ExportAssets2(string savePath, List<AssetItem> toExportAssets, ExportType exportType)
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+
+            string csvFileName = Path.Combine(savePath, "pkg.csv");
+            StreamWriter csvFile = new StreamWriter(csvFileName);
+
+            if (exportType == ExportType.Csv)
+                csvFile.Write("File Name,Size,Allocated,Modified,Attributes,Files,Folders\n");
+            else if (exportType == ExportType.Viz)
+                csvFile.Write("Name,Container,Type,Size,FileName\n");
+            int toExportCount = toExportAssets.Count;
+            int exportedCount = 0;
+            int i = 0;
+            Progress.Reset();
+            foreach (var asset in toExportAssets)
+            {
+                string exportPath;
+                switch (Properties.Settings.Default.assetGroupOption)
+                {
+                    case 0: //type name
+                        exportPath = Path.Combine(savePath, asset.TypeString);
+                        break;
+                    case 1: //container path
+                        if (!string.IsNullOrEmpty(asset.Container))
+                        {
+                            exportPath = Path.Combine(savePath, Path.GetDirectoryName(asset.Container));
+                        }
+                        else
+                        {
+                            exportPath = savePath;
+                        }
+                        break;
+                    case 2: //source file
+                        exportPath = Path.Combine(savePath, asset.SourceFile.fullName + "_export");
+                        break;
+                    default:
+                        exportPath = savePath;
+                        break;
+                }
+                exportPath += Path.DirectorySeparatorChar;
+                StatusStripUpdate($"Exporting {asset.TypeString}: {asset.Text}");
+                try
+                {
+                    switch (exportType)
+                    {
+                        case ExportType.Raw:
+                            if (ExportRawFile(asset, exportPath, out var filename))
+                            {
+                                exportedCount++;
+                            }
+                            break;
+                        case ExportType.Dump:
+                            if (ExportDumpFile(asset, exportPath))
+                            {
+                                exportedCount++;
+                            }
+                            break;
+                        case ExportType.Convert:
+                            if (ExportConvertFile(asset, exportPath))
+                            {
+                                exportedCount++;
+                            }
+                            break;
+                        case ExportType.Csv:
+                            if (csvFile.BaseStream != null)
+                            {
+                                // TODO:
+                                csvFile.Write(String.Format("\"{0}\",{1},0,2021/02/20 20:19:52,32,0,0\n", Path.Combine("Z:\\", asset.TypeString, asset.Text), asset.FullSize, asset.FullSize));
+                            }
+                            exportedCount++;
+                            break;
+                        case ExportType.Viz:
+                            if (ExportVizFile(asset, exportPath, csvFile))
+                            {
+                                exportedCount++;
+                            }
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Export {asset.Type}:{asset.Text} error\r\n{ex.Message}\r\n{ex.StackTrace}");
+                }
+
+                Progress.Report(++i, toExportCount);
+            }
+
+            var statusText = exportedCount == 0 ? "Nothing exported." : $"Finished exporting {exportedCount} assets.";
+
+            if (toExportCount > exportedCount)
+            {
+                statusText += $" {toExportCount - exportedCount} assets skipped (not extractable or files already exist)";
+            }
+
+            StatusStripUpdate(statusText);
+
+            if (Properties.Settings.Default.openAfterExport && exportedCount > 0)
+            {
+                Process.Start(savePath);
+            }
+
+            if (csvFile.BaseStream != null)
+            {
+                csvFile.Close();
+            }
+        }
+
         public static void ExportSplitObjects(string savePath, TreeNodeCollection nodes)
         {
             ThreadPool.QueueUserWorkItem(state =>

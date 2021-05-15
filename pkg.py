@@ -1,3 +1,4 @@
+import sys
 import csv
 import json
 import datetime
@@ -23,7 +24,7 @@ def process_pkg_csv(filename):
     dir_name = Path(filename).parent
     print(filename, dir_name)
 
-    markdown = open(dir_name / 'index.html', 'w')
+    markdown = open(dir_name / 'pkg.html', 'w')
     markdown.write(markdeep_head)
     markdown.write('Name|Count|Type|Size|WastedSize|FileName|Container\n')
     markdown.write('----|-----|----|----|----------|--------|---------\n')
@@ -75,4 +76,8 @@ def process_pkg_csv(filename):
                 ',<br>'.join(containers),
             ))            
 
-process_pkg_csv('d:/t3-202105120931fc9190.1620783875/test3/pkg.csv')
+if __name__ == '__main__':
+    pkg_csv = 'd:/svn_pool/pkg-doctor/hff_1a52b8498d42e.1620807276/viz/pkg.csv'
+    if len(sys.argv) > 1:
+        pkg_csv = sys.argv[1]    
+    process_pkg_csv(pkg_csv)
